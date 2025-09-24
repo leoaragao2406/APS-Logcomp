@@ -1,0 +1,43 @@
+PROGRAM        = { STATEMENT } ;
+
+STATEMENT      = VAR_DECL
+               | ASSIGN
+               | CONDITIONAL
+               | LOOP
+               | EMIT_STMT
+               | WAIT_STMT
+               | HALT_STMT ;
+
+VAR_DECL       = "LET", IDENT, "=", EXPR, ";" ;
+ASSIGN         = IDENT, "=", EXPR, ";" ;
+
+CONDITIONAL    = "IF", "(", CONDITION, ")", "{", { STATEMENT }, "}" ;
+
+LOOP           = "LOOP", EXPR, "TIMES", "{", { STATEMENT }, "}" ;
+
+EMIT_STMT      = "EMIT", TARGET, PARAM, ";" ;
+WAIT_STMT      = "WAIT", EXPR, "TICKS", ";" ;
+HALT_STMT      = "HALT", ";" ;
+
+TARGET         = IDENT ;                         (* nome do atuador *)
+PARAM          = EXPR | "ON" | "OFF" ;           (* valor numérico ou ON/OFF *)
+
+CONDITION      = EXPR, COMP_OP, EXPR
+               | "NOT", "(", CONDITION, ")"
+               | CONDITION, LOGIC_OP, CONDITION ;
+
+LOGIC_OP       = "AND" | "OR" ;
+COMP_OP        = ">" | "<" | "==" | ">=" | "<=" | "!=" ;
+
+EXPR           = TERM, { ("+" | "-"), TERM } ;
+TERM           = FACTOR, { ("*" | "/"), FACTOR } ;
+FACTOR         = NUMBER
+               | IDENT
+               | "READ", "(", IDENT, ")"        (* leitura de sensor *)
+               | "(", EXPR, ")" ;
+
+IDENT          = LETTER, { LETTER | DIGIT | "_" } ;
+NUMBER         = DIGIT, { DIGIT } ;
+
+LETTER         = "a" | "b" | … | "z" | "A" | … | "Z" ;
+DIGIT          = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
