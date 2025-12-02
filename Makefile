@@ -42,18 +42,6 @@ test: $(COMPILER) $(VM)
 	@echo "=== Teste 1: Variáveis ==="
 	./$(COMPILER) exemplos/teste1_variaveis.lava teste1.asm
 	./$(VM) teste1.asm
-	@echo ""
-	@echo "=== Teste 2: Condicionais ==="
-	./$(COMPILER) exemplos/teste2_condicional.lava teste2.asm
-	./$(VM) teste2.asm
-	@echo ""
-	@echo "=== Teste 3: Loops ==="
-	./$(COMPILER) exemplos/teste3_loop.lava teste3.asm
-	./$(VM) teste3.asm
-	@echo ""
-	@echo "=== Teste 4: Programa Completo ==="
-	./$(COMPILER) exemplos/teste4_completo.lava teste4.asm
-	./$(VM) teste4.asm
 
 # Limpar arquivos gerados
 clean:

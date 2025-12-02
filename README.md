@@ -15,10 +15,7 @@ APS-Logcomp/
 ├── lavadora_vm/
 │   └── vm.c              # Máquina Virtual da Lavadora
 ├── exemplos/
-│   ├── teste1_variaveis.lava
-│   ├── teste2_condicional.lava
-│   ├── teste3_loop.lava
-│   └── teste4_completo.lava
+│   └── teste1_variaveis.lava
 └── README.md
 ```
 

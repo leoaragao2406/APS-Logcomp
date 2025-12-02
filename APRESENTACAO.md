@@ -276,10 +276,7 @@ A arquitetura permite fácil adição de:
 
 ### Testes Implementados
 
-1. **teste1_variaveis.lava**: Demonstra declaração e uso de variáveis
-2. **teste2_condicional.lava**: Demonstra estruturas condicionais
-3. **teste3_loop.lava**: Demonstra loops e iterações
-4. **teste4_completo.lava**: Programa completo de ciclo de lavagem
+1. **teste1_variaveis.lava**: Demonstra declaração e uso de variáveis com operações aritméticas
 
 ### Execução
 

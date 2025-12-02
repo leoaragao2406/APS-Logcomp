@@ -64,6 +64,10 @@ typedef struct {
 Instruction program[1024];
 int program_size = 0;
 
+// Labels globais para primeira passada
+Label global_labels[MAX_LABELS];
+int global_label_count = 0;
+
 // Funções auxiliares
 void init_vm(VM *vm) {
     vm->regs.R0 = 0;
@@ -296,9 +300,9 @@ void execute_instruction(VM *vm, Instruction *inst) {
     }
     else if (strcmp(inst->opcode, "JZ") == 0) {
         if (vm->regs.R0 == 0) {
-            Label *label = find_label(vm, inst->arg2);
+            Label *label = find_label(vm, inst->arg1);
             if (label == NULL) {
-                fprintf(stderr, "Erro: label '%s' nao encontrado\n", inst->arg2);
+                fprintf(stderr, "Erro: label '%s' nao encontrado\n", inst->arg1);
                 vm->halted = true;
                 return;
             }
@@ -308,9 +312,9 @@ void execute_instruction(VM *vm, Instruction *inst) {
     }
     else if (strcmp(inst->opcode, "JLE") == 0) {
         if (vm->regs.R0 <= 0) {
-            Label *label = find_label(vm, inst->arg2);
+            Label *label = find_label(vm, inst->arg1);
             if (label == NULL) {
-                fprintf(stderr, "Erro: label '%s' nao encontrado\n", inst->arg2);
+                fprintf(stderr, "Erro: label '%s' nao encontrado\n", inst->arg1);
                 vm->halted = true;
                 return;
             }
@@ -380,10 +384,6 @@ void execute_instruction(VM *vm, Instruction *inst) {
         vm->halted = true;
     }
 }
-
-// Labels globais para primeira passada
-Label global_labels[MAX_LABELS];
-int global_label_count = 0;
 
 // Parser do assembly
 void parse_assembly(const char *filename) {
@@ -473,6 +473,7 @@ void run_vm(VM *vm) {
     
     while (vm->pc < program_size && !vm->halted) {
         Instruction *inst = &program[vm->pc];
+        //printf("[PC=%d] %s %s %s\n", vm->pc, inst->opcode, inst->arg1, inst->arg2);
         execute_instruction(vm, inst);
         if (!vm->halted) {
             vm->pc++;

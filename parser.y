@@ -1,4 +1,5 @@
 %{
+#define _POSIX_C_SOURCE 200809L
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,6 +9,14 @@ int yylex(void);
 extern int yylineno;
 
 static FILE *out;
+
+// Helper function for string duplication
+static char* safe_strdup(const char *s) {
+    if (s == NULL) return NULL;
+    char *result = (char *)malloc(strlen(s) + 1);
+    if (result) strcpy(result, s);
+    return result;
+}
 
 typedef struct Symbol {
     char *name;
@@ -35,7 +44,11 @@ static void declare_symbol(const char *name) {
         perror("malloc");
         exit(EXIT_FAILURE);
     }
-    sym->name = strdup(name);
+    sym->name = safe_strdup(name);
+    if (!sym->name) {
+        perror("malloc");
+        exit(EXIT_FAILURE);
+    }
     sym->next = symbols;
     symbols = sym;
     fprintf(out, "ALLOC %s\n", name);
@@ -179,7 +192,7 @@ conditional
     : IF '(' condition ')' {
           int label = generate_label();
           fprintf(out, "    POP R0\n");
-          fprintf(out, "    JZ R0, IF_END_%d\n", label);
+          fprintf(out, "    JZ IF_END_%d\n", label);
           push_if(label);
       } '{' statement_list '}'
       {
@@ -204,7 +217,7 @@ emit_stmt
     : EMIT IDENT param ';'
       {
           fprintf(out, "    POP R0\n");
-          fprintf(out, "    EMIT %s, R0\n", $2);
+          fprintf(out, "    EMIT %s R0\n", $2);
           free($2);
       }
     ;

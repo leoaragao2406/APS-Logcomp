@@ -69,6 +69,7 @@
 /* First part of user prologue.  */
 #line 1 "parser.y"
 
+#define _POSIX_C_SOURCE 200809L
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -78,6 +79,14 @@ int yylex(void);
 extern int yylineno;
 
 static FILE *out;
+
+// Helper function for string duplication
+static char* safe_strdup(const char *s) {
+    if (s == NULL) return NULL;
+    char *result = (char *)malloc(strlen(s) + 1);
+    if (result) strcpy(result, s);
+    return result;
+}
 
 typedef struct Symbol {
     char *name;
@@ -105,7 +114,11 @@ static void declare_symbol(const char *name) {
         perror("malloc");
         exit(EXIT_FAILURE);
     }
-    sym->name = strdup(name);
+    sym->name = safe_strdup(name);
+    if (!sym->name) {
+        perror("malloc");
+        exit(EXIT_FAILURE);
+    }
     sym->next = symbols;
     symbols = sym;
     fprintf(out, "ALLOC %s\n", name);
@@ -180,7 +193,7 @@ static void emit_loop_epilogue(int label) {
     fprintf(out, "LOOP_END_%d:\n", label);
 }
 
-#line 184 "parser.tab.c"
+#line 197 "parser.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -648,11 +661,11 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,   139,   139,   143,   144,   148,   149,   150,   151,   152,
-     153,   154,   158,   158,   169,   179,   179,   192,   192,   204,
-     213,   221,   228,   229,   233,   240,   267,   273,   280,   290,
-     291,   292,   293,   294,   295,   299,   306,   313,   320,   327,
-     331,   336,   342
+       0,   152,   152,   156,   157,   161,   162,   163,   164,   165,
+     166,   167,   171,   171,   182,   192,   192,   205,   205,   217,
+     226,   234,   241,   242,   246,   253,   280,   286,   293,   303,
+     304,   305,   306,   307,   308,   312,   319,   326,   333,   340,
+     344,   349,   355
 };
 #endif
 
@@ -1273,118 +1286,118 @@ yyreduce:
   switch (yyn)
     {
   case 12: /* $@1: %empty  */
-#line 158 "parser.y"
+#line 171 "parser.y"
                     {
           declare_symbol((yyvsp[-1].str));
       }
-#line 1281 "parser.tab.c"
+#line 1294 "parser.tab.c"
     break;
 
   case 13: /* var_decl: LET IDENT '=' $@1 expr ';'  */
-#line 161 "parser.y"
+#line 174 "parser.y"
       {
           fprintf(out, "    POP R0\n");
           fprintf(out, "    STORE %s, R0\n", (yyvsp[-4].str));
           free((yyvsp[-4].str));
       }
-#line 1291 "parser.tab.c"
+#line 1304 "parser.tab.c"
     break;
 
   case 14: /* assign: IDENT '=' expr ';'  */
-#line 170 "parser.y"
+#line 183 "parser.y"
       {
           ensure_symbol((yyvsp[-3].str));
           fprintf(out, "    POP R0\n");
           fprintf(out, "    STORE %s, R0\n", (yyvsp[-3].str));
           free((yyvsp[-3].str));
       }
-#line 1302 "parser.tab.c"
+#line 1315 "parser.tab.c"
     break;
 
   case 15: /* $@2: %empty  */
-#line 179 "parser.y"
+#line 192 "parser.y"
                            {
           int label = generate_label();
           fprintf(out, "    POP R0\n");
-          fprintf(out, "    JZ R0, IF_END_%d\n", label);
+          fprintf(out, "    JZ IF_END_%d\n", label);
           push_if(label);
       }
-#line 1313 "parser.tab.c"
+#line 1326 "parser.tab.c"
     break;
 
   case 16: /* conditional: IF '(' condition ')' $@2 '{' statement_list '}'  */
-#line 185 "parser.y"
+#line 198 "parser.y"
       {
           int label = pop_if();
           fprintf(out, "IF_END_%d:\n", label);
       }
-#line 1322 "parser.tab.c"
+#line 1335 "parser.tab.c"
     break;
 
   case 17: /* $@3: %empty  */
-#line 192 "parser.y"
+#line 205 "parser.y"
                       {
           int label = generate_label();
           emit_loop_prologue(label);
           push_loop(label);
       }
-#line 1332 "parser.tab.c"
+#line 1345 "parser.tab.c"
     break;
 
   case 18: /* loop: LOOP expr TIMES $@3 '{' statement_list '}'  */
-#line 197 "parser.y"
+#line 210 "parser.y"
       {
           int label = pop_loop();
           emit_loop_epilogue(label);
       }
-#line 1341 "parser.tab.c"
+#line 1354 "parser.tab.c"
     break;
 
   case 19: /* emit_stmt: EMIT IDENT param ';'  */
-#line 205 "parser.y"
+#line 218 "parser.y"
       {
           fprintf(out, "    POP R0\n");
-          fprintf(out, "    EMIT %s, R0\n", (yyvsp[-2].str));
+          fprintf(out, "    EMIT %s R0\n", (yyvsp[-2].str));
           free((yyvsp[-2].str));
       }
-#line 1351 "parser.tab.c"
+#line 1364 "parser.tab.c"
     break;
 
   case 20: /* wait_stmt: WAIT expr TICKS ';'  */
-#line 214 "parser.y"
+#line 227 "parser.y"
       {
           fprintf(out, "    POP R0\n");
           fprintf(out, "    WAIT R0\n");
       }
-#line 1360 "parser.tab.c"
+#line 1373 "parser.tab.c"
     break;
 
   case 21: /* halt_stmt: HALT ';'  */
-#line 222 "parser.y"
+#line 235 "parser.y"
       {
           fprintf(out, "    HALT\n");
       }
-#line 1368 "parser.tab.c"
+#line 1381 "parser.tab.c"
     break;
 
   case 23: /* param: ON  */
-#line 230 "parser.y"
+#line 243 "parser.y"
       {
           fprintf(out, "    PUSHI 1\n");
       }
-#line 1376 "parser.tab.c"
+#line 1389 "parser.tab.c"
     break;
 
   case 24: /* param: OFF  */
-#line 234 "parser.y"
+#line 247 "parser.y"
       {
           fprintf(out, "    PUSHI 0\n");
       }
-#line 1384 "parser.tab.c"
+#line 1397 "parser.tab.c"
     break;
 
   case 25: /* condition: expr comparison expr  */
-#line 241 "parser.y"
+#line 254 "parser.y"
       {
           fprintf(out, "    POP R1\n");
           fprintf(out, "    POP R0\n");
@@ -1411,160 +1424,160 @@ yyreduce:
           }
           fprintf(out, "    PUSH R0\n");
       }
-#line 1415 "parser.tab.c"
+#line 1428 "parser.tab.c"
     break;
 
   case 26: /* condition: NOT '(' condition ')'  */
-#line 268 "parser.y"
+#line 281 "parser.y"
       {
           fprintf(out, "    POP R0\n");
           fprintf(out, "    NOT R0\n");
           fprintf(out, "    PUSH R0\n");
       }
-#line 1425 "parser.tab.c"
+#line 1438 "parser.tab.c"
     break;
 
   case 27: /* condition: condition AND condition  */
-#line 274 "parser.y"
+#line 287 "parser.y"
       {
           fprintf(out, "    POP R1\n");
           fprintf(out, "    POP R0\n");
           fprintf(out, "    AND R0, R1\n");
           fprintf(out, "    PUSH R0\n");
       }
-#line 1436 "parser.tab.c"
+#line 1449 "parser.tab.c"
     break;
 
   case 28: /* condition: condition OR condition  */
-#line 281 "parser.y"
+#line 294 "parser.y"
       {
           fprintf(out, "    POP R1\n");
           fprintf(out, "    POP R0\n");
           fprintf(out, "    OR R0, R1\n");
           fprintf(out, "    PUSH R0\n");
       }
-#line 1447 "parser.tab.c"
+#line 1460 "parser.tab.c"
     break;
 
   case 29: /* comparison: '>'  */
-#line 290 "parser.y"
+#line 303 "parser.y"
           { (yyval.ival) = '>'; }
-#line 1453 "parser.tab.c"
+#line 1466 "parser.tab.c"
     break;
 
   case 30: /* comparison: '<'  */
-#line 291 "parser.y"
+#line 304 "parser.y"
           { (yyval.ival) = '<'; }
-#line 1459 "parser.tab.c"
+#line 1472 "parser.tab.c"
     break;
 
   case 31: /* comparison: "=="  */
-#line 292 "parser.y"
+#line 305 "parser.y"
           { (yyval.ival) = EQ; }
-#line 1465 "parser.tab.c"
+#line 1478 "parser.tab.c"
     break;
 
   case 32: /* comparison: ">="  */
-#line 293 "parser.y"
+#line 306 "parser.y"
           { (yyval.ival) = GE; }
-#line 1471 "parser.tab.c"
+#line 1484 "parser.tab.c"
     break;
 
   case 33: /* comparison: "<="  */
-#line 294 "parser.y"
+#line 307 "parser.y"
           { (yyval.ival) = LE; }
-#line 1477 "parser.tab.c"
+#line 1490 "parser.tab.c"
     break;
 
   case 34: /* comparison: "!="  */
-#line 295 "parser.y"
+#line 308 "parser.y"
           { (yyval.ival) = NE; }
-#line 1483 "parser.tab.c"
+#line 1496 "parser.tab.c"
     break;
 
   case 35: /* expr: expr '+' expr  */
-#line 300 "parser.y"
+#line 313 "parser.y"
       {
           fprintf(out, "    POP R1\n");
           fprintf(out, "    POP R0\n");
           fprintf(out, "    ADD R0, R1\n");
           fprintf(out, "    PUSH R0\n");
       }
-#line 1494 "parser.tab.c"
+#line 1507 "parser.tab.c"
     break;
 
   case 36: /* expr: expr '-' expr  */
-#line 307 "parser.y"
+#line 320 "parser.y"
       {
           fprintf(out, "    POP R1\n");
           fprintf(out, "    POP R0\n");
           fprintf(out, "    SUB R0, R1\n");
           fprintf(out, "    PUSH R0\n");
       }
-#line 1505 "parser.tab.c"
+#line 1518 "parser.tab.c"
     break;
 
   case 37: /* expr: expr '*' expr  */
-#line 314 "parser.y"
+#line 327 "parser.y"
       {
           fprintf(out, "    POP R1\n");
           fprintf(out, "    POP R0\n");
           fprintf(out, "    MUL R0, R1\n");
           fprintf(out, "    PUSH R0\n");
       }
-#line 1516 "parser.tab.c"
+#line 1529 "parser.tab.c"
     break;
 
   case 38: /* expr: expr '/' expr  */
-#line 321 "parser.y"
+#line 334 "parser.y"
       {
           fprintf(out, "    POP R1\n");
           fprintf(out, "    POP R0\n");
           fprintf(out, "    DIV R0, R1\n");
           fprintf(out, "    PUSH R0\n");
       }
-#line 1527 "parser.tab.c"
+#line 1540 "parser.tab.c"
     break;
 
   case 39: /* expr: '(' expr ')'  */
-#line 328 "parser.y"
+#line 341 "parser.y"
       {
           /* nada a emitir */
       }
-#line 1535 "parser.tab.c"
+#line 1548 "parser.tab.c"
     break;
 
   case 40: /* expr: NUMBER  */
-#line 332 "parser.y"
+#line 345 "parser.y"
       {
           fprintf(out, "    PUSHI %s\n", (yyvsp[0].str));
           free((yyvsp[0].str));
       }
-#line 1544 "parser.tab.c"
+#line 1557 "parser.tab.c"
     break;
 
   case 41: /* expr: IDENT  */
-#line 337 "parser.y"
+#line 350 "parser.y"
       {
           ensure_symbol((yyvsp[0].str));
           fprintf(out, "    PUSHV %s\n", (yyvsp[0].str));
           free((yyvsp[0].str));
       }
-#line 1554 "parser.tab.c"
+#line 1567 "parser.tab.c"
     break;
 
   case 42: /* expr: READ '(' IDENT ')'  */
-#line 343 "parser.y"
+#line 356 "parser.y"
       {
           fprintf(out, "    READ R0, %s\n", (yyvsp[-1].str));
           fprintf(out, "    PUSH R0\n");
           free((yyvsp[-1].str));
       }
-#line 1564 "parser.tab.c"
+#line 1577 "parser.tab.c"
     break;
 
 
-#line 1568 "parser.tab.c"
+#line 1581 "parser.tab.c"
 
       default: break;
     }
@@ -1757,18 +1770,36 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 350 "parser.y"
+#line 363 "parser.y"
 
 
 void yyerror(const char *s) {
     fprintf(stderr, "Erro sintatico na linha %d: %s\n", yylineno, s);
 }
 
+extern FILE *yyin;
+
 int main(int argc, char **argv) {
-    const char *output_path = (argc > 1) ? argv[1] : "lavadora.asm";
+    if (argc < 2) {
+        fprintf(stderr, "Uso: %s <arquivo.lava> [saida.asm]\n", argv[0]);
+        return EXIT_FAILURE;
+    }
+    
+    const char *input_path = argv[1];
+    const char *output_path = (argc > 2) ? argv[2] : "lavadora.asm";
+    
+    // Abrir arquivo de entrada
+    yyin = fopen(input_path, "r");
+    if (!yyin) {
+        perror("Erro ao abrir arquivo de entrada");
+        return EXIT_FAILURE;
+    }
+    
+    // Abrir arquivo de saída
     out = fopen(output_path, "w");
     if (!out) {
-        perror("fopen");
+        perror("Erro ao abrir arquivo de saida");
+        fclose(yyin);
         return EXIT_FAILURE;
     }
 
@@ -1776,6 +1807,7 @@ int main(int argc, char **argv) {
 
     int parse_status = yyparse();
 
+    fclose(yyin);
     fclose(out);
     return parse_status == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
 }

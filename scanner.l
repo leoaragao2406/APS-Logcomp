@@ -2,10 +2,19 @@
 %option noinput
 
 %{
+#define _POSIX_C_SOURCE 200809L
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "parser.tab.h"
+
+// Helper function for string duplication
+static char* safe_strdup(const char *s) {
+    if (s == NULL) return NULL;
+    char *result = (char *)malloc(strlen(s) + 1);
+    if (result) strcpy(result, s);
+    return result;
+}
 %}
 
 DIGIT   [0-9]
@@ -37,8 +46,8 @@ WS      [ \t\r\n]+
 {WS}            { /* ignora espacos */ }
 "//"[^\n]*     { /* comentario de linha */ }
 
-{ID}            { yylval.str = strdup(yytext); return IDENT; }
-{DIGIT}+        { yylval.str = strdup(yytext); return NUMBER; }
+{ID}            { yylval.str = safe_strdup(yytext); return IDENT; }
+{DIGIT}+        { yylval.str = safe_strdup(yytext); return NUMBER; }
 
 "{"            { return '{'; }
 "}"            { return '}'; }
