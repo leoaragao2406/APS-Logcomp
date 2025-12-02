@@ -298,23 +298,3 @@ Todos os testes compilam e executam corretamente na VM.
 ✅ Exemplos de teste demonstrando todas as características  
 ✅ Documentação completa  
 
-### Aprendizados
-
-- Processo completo de compilação (lexer → parser → codegen)
-- Implementação de máquinas virtuais
-- Design de linguagens de domínio específico
-- Uso de ferramentas profissionais (Flex/Bison)
-
----
-
-## Referências
-
-- [Flex Manual](https://www.gnu.org/software/flex/)
-- [Bison Manual](https://www.gnu.org/software/bison/)
-- [Minsky Machines](https://en.wikipedia.org/wiki/Counter_machine)
-- [MicrowaveVM Example](https://github.com/example/microwavevm)
-
----
-
-**Desenvolvido para APS de Supercompiladores - INSPER 2025.2**
-
