@@ -353,11 +353,29 @@ void yyerror(const char *s) {
     fprintf(stderr, "Erro sintatico na linha %d: %s\n", yylineno, s);
 }
 
+extern FILE *yyin;
+
 int main(int argc, char **argv) {
-    const char *output_path = (argc > 1) ? argv[1] : "lavadora.asm";
+    if (argc < 2) {
+        fprintf(stderr, "Uso: %s <arquivo.lava> [saida.asm]\n", argv[0]);
+        return EXIT_FAILURE;
+    }
+    
+    const char *input_path = argv[1];
+    const char *output_path = (argc > 2) ? argv[2] : "lavadora.asm";
+    
+    // Abrir arquivo de entrada
+    yyin = fopen(input_path, "r");
+    if (!yyin) {
+        perror("Erro ao abrir arquivo de entrada");
+        return EXIT_FAILURE;
+    }
+    
+    // Abrir arquivo de saída
     out = fopen(output_path, "w");
     if (!out) {
-        perror("fopen");
+        perror("Erro ao abrir arquivo de saida");
+        fclose(yyin);
         return EXIT_FAILURE;
     }
 
@@ -365,6 +383,7 @@ int main(int argc, char **argv) {
 
     int parse_status = yyparse();
 
+    fclose(yyin);
     fclose(out);
     return parse_status == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
 }

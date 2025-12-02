@@ -1,0 +1,6 @@
+// Exemplo 1: Variáveis e operações básicas
+LET x = 10;
+LET y = 5;
+LET resultado = x + y * 2;
+LET divisao = resultado / 3;
+

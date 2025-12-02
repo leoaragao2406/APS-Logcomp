@@ -1,4 +1,5 @@
 %option noyywrap yylineno nodefault
+%option noinput
 
 %{
 #include <stdio.h>

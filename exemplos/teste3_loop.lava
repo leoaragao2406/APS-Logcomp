@@ -1,0 +1,18 @@
+// Exemplo 3: Loops
+LET ciclos = 3;
+
+LOOP ciclos TIMES {
+    EMIT motor ON;
+    WAIT 5 TICKS;
+    EMIT motor OFF;
+    WAIT 2 TICKS;
+}
+
+LET contador = 0;
+LOOP 5 TIMES {
+    LET contador = contador + 1;
+    EMIT bomba_agua ON;
+    WAIT contador TICKS;
+    EMIT bomba_agua OFF;
+}
+

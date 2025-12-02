@@ -1,0 +1,65 @@
+// Exemplo 4: Programa completo - Ciclo de lavagem
+// Verifica se a porta está fechada
+IF (READ(door_closed) == 0) {
+    HALT;
+}
+
+// Enche a máquina com água
+LET nivel_desejado = 70;
+LET nivel_atual = READ(water_level);
+
+IF (nivel_atual < nivel_desejado) {
+    EMIT valvula_agua ON;
+    
+    LOOP 10 TIMES {
+        nivel_atual = READ(water_level);
+        IF (nivel_atual >= nivel_desejado) {
+            EMIT valvula_agua OFF;
+        }
+        WAIT 1 TICKS;
+    }
+    
+    EMIT valvula_agua OFF;
+}
+
+// Aquece a água
+LET temp_desejada = 40;
+LET temp_atual = READ(temperature);
+
+IF (temp_atual < temp_desejada) {
+    EMIT resistor ON;
+    
+    LOOP 20 TIMES {
+        temp_atual = READ(temperature);
+        IF (temp_atual >= temp_desejada) {
+            EMIT resistor OFF;
+        }
+        WAIT 1 TICKS;
+    }
+    
+    EMIT resistor OFF;
+}
+
+// Ciclo de lavagem
+LOOP 3 TIMES {
+    EMIT motor ON;
+    WAIT 30 TICKS;
+    EMIT motor OFF;
+    WAIT 5 TICKS;
+}
+
+// Enxágue
+EMIT bomba_agua ON;
+WAIT 15 TICKS;
+EMIT bomba_agua OFF;
+
+// Centrifugação
+LOOP 5 TIMES {
+    EMIT motor ON;
+    WAIT 10 TICKS;
+    EMIT motor OFF;
+    WAIT 2 TICKS;
+}
+
+HALT;
+
