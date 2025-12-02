@@ -100,7 +100,3 @@ A LavadoraVM possui:
 ## Exemplos
 
 Veja a pasta `exemplos/` para programas de exemplo completos.
-
-## Autores
-
-Desenvolvido como parte do APS de Supercompiladores - INSPER 2025.2
